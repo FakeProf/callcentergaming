@@ -147,15 +147,22 @@
 
             <section id="rangliste">
                 <h2>Aktuelle Rangliste</h2>
-                <div id="rangliste-container"></div>
+                <div class="rangliste-tabelle">
+                    <div class="rangliste-header">
+                        <div class="rang">Rang</div>
+                        <div class="name">Name</div>
+                        <div class="punkte">Punkte</div>
+                    </div>
+                    <div id="rangliste-eintraege">
+                        <!-- Wird durch JavaScript gefüllt -->
+                    </div>
+                </div>
             </section>
 
             <section id="anmeldung">
                 <h2>Turnieranmeldung</h2>
                 <div id="anmeldung-container">
-                    <div class="anmeldung-info">
-                        <p>Bitte melde dich zuerst an, um dich für Spieltage registrieren zu können.</p>
-                    </div>
+                    <!-- Wird dynamisch gefüllt -->
                 </div>
             </section>
         </main>
