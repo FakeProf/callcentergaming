@@ -645,4 +645,80 @@ main {
     padding: 2rem;
     background: #f8f9fa;
     border-radius: 8px;
+}
+
+/* Aktualisierte Ranglisten-Styles */
+#rangliste {
+    padding: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.rangliste-tabelle {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.rangliste-header {
+    display: grid;
+    grid-template-columns: 80px 1fr 100px;
+    padding: 1rem;
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: bold;
+    text-align: center;
+}
+
+.rangliste-zeile {
+    display: grid;
+    grid-template-columns: 80px 1fr 100px;
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+    text-align: center;
+    align-items: center;
+}
+
+.rangliste-zeile:last-child {
+    border-bottom: none;
+}
+
+.rangliste-zeile:hover {
+    background-color: #f8f9fa;
+}
+
+.rangliste-zeile.top-1 {
+    background-color: rgba(255, 215, 0, 0.1);
+}
+
+.rangliste-zeile.top-2 {
+    background-color: rgba(192, 192, 192, 0.1);
+}
+
+.rangliste-zeile.top-3 {
+    background-color: rgba(205, 127, 50, 0.1);
+}
+
+.rang {
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.name {
+    text-align: left;
+    padding-left: 1rem;
+}
+
+.punkte {
+    font-weight: bold;
+    color: var(--secondary-color);
+}
+
+@media (max-width: 500px) {
+    .rangliste-header, .rangliste-zeile {
+        grid-template-columns: 60px 1fr 80px;
+        padding: 0.8rem;
+        font-size: 0.9rem;
+    }
 } 
