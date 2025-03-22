@@ -278,7 +278,7 @@ async function handleLogin(event) {
 
 function handleLogout() {
     if (window.netlifyIdentity) {
-        window.netlifyIdentity.open('logout');
+        window.netlifyIdentity.logout();
     } else {
         console.error('Netlify Identity Widget nicht geladen');
     }
@@ -299,7 +299,6 @@ function handleNetlifyLogout() {
     localStorage.removeItem('currentSession');
     updateLoginStatus(false);
     updateAnmeldungSection();
-    window.location.reload();
 }
 
 function updateLoginStatus(isLoggedIn, username = null) {
@@ -540,9 +539,9 @@ function speicherAktuellenSpieler() {
 
 // Anmeldungsfunktionalität
 document.addEventListener('DOMContentLoaded', () => {
+    initializeRangliste();
     checkLoginStatus();
     updateAnmeldungSection();
-    aktualisiereRangliste();
 });
 
 function renderAnmeldungBereich() {
@@ -750,12 +749,22 @@ async function toggleAnmeldung(spielName) {
 
 function checkLoginStatus() {
     if (window.netlifyIdentity) {
-        window.netlifyIdentity.on('init', user => {
-            if (user) {
-                handleNetlifyLogin(user);
-            } else {
-                handleNetlifyLogout();
-            }
+        const user = window.netlifyIdentity.currentUser();
+        if (user) {
+            handleNetlifyLogin(user);
+        } else {
+            handleNetlifyLogout();
+        }
+
+        // Event Listener für Login/Logout
+        window.netlifyIdentity.on('login', user => {
+            handleNetlifyLogin(user);
+            window.netlifyIdentity.close();
+        });
+
+        window.netlifyIdentity.on('logout', () => {
+            handleNetlifyLogout();
+            window.netlifyIdentity.close();
         });
     }
 }
