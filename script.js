@@ -615,4 +615,134 @@ async function renderSpieltagListe(wochenId) {
         html += `
                 </div>
             </div>
-        `
+        `;
+    } catch (error) {
+        console.error('Fehler beim Rendern des Spieltag-Containers:', error);
+        html = `
+            <div class="woche-anmeldung">
+                <h3>${woche.name}</h3>
+                <div class="spieltage-grid">
+                    <div class="spieltag-karte">
+                        <div class="spieltag-header">
+                            <h4>Fehler</h4>
+                        </div>
+                        <div class="spieltag-details">
+                            <p>Es ist ein Fehler aufgetreten, um die Spieltag-Liste zu rendern.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    spieltagContainer.innerHTML = html;
+}
+
+function handleNetlifyLogin(user) {
+    const sessionData = {
+        username: user.user_metadata.full_name || user.email,
+        loginTime: new Date().toISOString(),
+        isActive: true
+    };
+    localStorage.setItem('currentSession', JSON.stringify(sessionData));
+    updateLoginStatus(true, sessionData.username);
+    updateAnmeldungSection();
+}
+
+function handleNetlifyLogout() {
+    localStorage.removeItem('currentSession');
+    updateLoginStatus(false);
+    updateAnmeldungSection();
+}
+
+async function updateAnmeldungSection() {
+    const container = document.getElementById('anmeldung-container');
+    if (!container) return;
+
+    const session = JSON.parse(localStorage.getItem('currentSession'));
+    
+    if (!session || !session.isActive) {
+        container.innerHTML = `
+            <div class="anmeldung-info">
+                <p>Bitte melde dich zuerst an, um dich für Spieltage registrieren zu können.</p>
+            </div>
+        `;
+        return;
+    }
+
+    try {
+        const response = await fetch('/.netlify/functions/toggle-registration', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error('Fehler beim Abrufen der Anmeldungen');
+        }
+
+        const registrierteSpiele = await response.json();
+        
+        let html = '<div class="anmeldung-grid">';
+        
+        // Alle Spiele aus dem Turnierplan durchgehen
+        Object.values(turnierSpielplan).forEach(woche => {
+            woche.spiele.forEach(spiel => {
+                const isRegistriert = registrierteSpiele[spiel.spiel]?.includes(session.username) || false;
+                html += `
+                    <div class="spiel-anmeldung">
+                        <h3>${spiel.spiel}</h3>
+                        <p>Datum: ${spiel.datum}</p>
+                        <p>Zeit: ${spiel.uhrzeit}</p>
+                        <button onclick="toggleAnmeldung('${spiel.spiel}')" 
+                                class="${isRegistriert ? 'abmelden' : 'anmelden'}">
+                            ${isRegistriert ? 'Abmelden' : 'Anmelden'}
+                        </button>
+                    </div>
+                `;
+            });
+        });
+        
+        html += '</div>';
+        container.innerHTML = html;
+    } catch (error) {
+        console.error('Fehler beim Aktualisieren der Anmeldungssektion:', error);
+        container.innerHTML = `
+            <div class="anmeldung-info">
+                <p>Es ist ein Fehler aufgetreten. Bitte versuche es später erneut.</p>
+            </div>
+        `;
+    }
+}
+
+async function toggleAnmeldung(spielName) {
+    const session = JSON.parse(localStorage.getItem('currentSession'));
+    if (!session || !session.isActive) {
+        alert('Bitte melde dich zuerst an.');
+        return;
+    }
+
+    try {
+        const response = await fetch('/.netlify/functions/toggle-registration', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                game: spielName,
+                username: session.username,
+                action: 'toggle'
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Fehler beim Aktualisieren der Anmeldung');
+        }
+
+        await updateAnmeldungSection();
+    } catch (error) {
+        console.error('Fehler beim Toggle der Anmeldung:', error);
+        alert('Es ist ein Fehler aufgetreten. Bitte versuche es später erneut.');
+    }
+}
