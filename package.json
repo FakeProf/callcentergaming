@@ -1,0 +1,20 @@
+{
+  "name": "callcenter-tournament",
+  "version": "1.0.0",
+  "description": "Call-Center Gaming Championship 2025",
+  "main": "server.js",
+  "scripts": {
+    "start": "netlify dev",
+    "build": "# no build command needed"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "body-parser": "^1.20.2"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.10.1",
+    "nodemon": "^3.0.2"
+  }
+} 

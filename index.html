@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Call-Center Gaming Championship 2025</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Netlify Identity Widget -->
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+</head>
+<body>
+    <div class="page-container">
+        <header>
+            <h1>Call-Center Gaming Championship 2025</h1>
+            <div id="login-status" class="login-status">
+                <span id="user-info"></span>
+                <button id="login-button" onclick="zeigeLoginModal()">Login</button>
+                <button id="logout-button" onclick="logout()" style="display: none;">Logout</button>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#spielplan">Spielplan</a></li>
+                    <li><a href="#rangliste">Rangliste</a></li>
+                    <li><a href="#anmeldung">Anmeldung</a></li>
+                    <li><a href="#regeln">Regeln</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main>
+            <section id="regeln">
+                <h2>Turnierregeln</h2>
+                <div class="regeln-container">
+                    <div class="regel-box">
+                        <h3>Allgemeine Regeln</h3>
+                        <ul>
+                            <li>Das Turnier läuft über 3 Wochen</li>
+                            <li>Faire Teams werden per Zufallsgenerator erstellt</li>
+                            <li>Bei Nicht-Teilnahme erhält man automatisch Mindestpunkte (15 Punkte)</li>
+                        </ul>
+                    </div>
+                    <div class="regel-box">
+                        <h3>Punktesystem</h3>
+                        <ul>
+                            <li>1. Platz: 100 Punkte</li>
+                            <li>2. Platz: 75 Punkte</li>
+                            <li>3. Platz: 50 Punkte</li>
+                            <li>4. Platz: 30 Punkte</li>
+                            <li>Nicht-Teilnahme: 15 Punkte</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="spielplan">
+                <h2>Turnierplan</h2>
+                <div class="wochen-container">
+                    <div class="woche">
+                        <h3>Woche 1: FPS-Woche</h3>
+                        <div class="spiel-termine">
+                            <div class="termin">
+                                <h4>Montag - Counter Strike 2</h4>
+                                <p>Modus: 5v5 Competitive</p>
+                                <p>Zeit: 19:00 - 19:45</p>
+                                <p>Ziel: 16 Runden gewinnen</p>
+                            </div>
+                            <div class="termin">
+                                <h4>Dienstag - Combat Master</h4>
+                                <p>Modus: 4v4 Team Deathmatch</p>
+                                <p>Zeit: 19:00 - 19:30</p>
+                                <p>Ziel: 50 Kills erreichen</p>
+                            </div>
+                            <div class="termin">
+                                <h4>Mittwoch - Valorant</h4>
+                                <p>Modus: 5v5 Competitive</p>
+                                <p>Zeit: 19:00 - 19:45</p>
+                                <p>Ziel: 13 Runden gewinnen</p>
+                            </div>
+                            <div class="termin">
+                                <h4>Donnerstag - RedMatch 2</h4>
+                                <p>Modus: Team Deathmatch</p>
+                                <p>Zeit: 19:00 - 19:25</p>
+                                <p>Ziel: 40 Team-Kills</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="woche">
+                        <h3>Woche 2: Party-Spiele</h3>
+                        <div class="spiel-termine">
+                            <div class="termin">
+                                <h4>Montag - Stick Fight</h4>
+                                <p>Modus: FFA</p>
+                                <p>Zeit: 19:00 - 19:20</p>
+                                <p>Ziel: Best of 5 Runden</p>
+                            </div>
+                            <div class="termin">
+                                <h4>Dienstag - Just Act Natural</h4>
+                                <p>Modus: Standard</p>
+                                <p>Zeit: 19:00 - 19:25</p>
+                                <p>Ziel: Meiste Punkte nach 3 Runden</p>
+                            </div>
+                            <div class="termin">
+                                <h4>Mittwoch - Bean Battles</h4>
+                                <p>Modus: Battle Royale</p>
+                                <p>Zeit: 19:00 - 19:20</p>
+                                <p>Ziel: Letzter Überlebender</p>
+                            </div>
+                            <div class="termin">
+                                <h4>Donnerstag - Golf It</h4>
+                                <p>Modus: 8 Spieler</p>
+                                <p>Zeit: 19:00 - 19:30</p>
+                                <p>Ziel: Niedrigste Gesamtschlagzahl</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="woche">
+                        <h3>Woche 3: Competitive</h3>
+                        <div class="spiel-termine">
+                            <div class="termin">
+                                <h4>Montag - Rocket League</h4>
+                                <p>Modus: 2v2</p>
+                                <p>Zeit: 19:00 - 19:25</p>
+                                <p>Ziel: Best of 3 Matches</p>
+                            </div>
+                            <div class="termin">
+                                <h4>Dienstag - Clash Royal</h4>
+                                <p>Modus: 1v1</p>
+                                <p>Zeit: 19:00 - 19:20</p>
+                                <p>Ziel: Best of 3 Matches</p>
+                            </div>
+                            <div class="termin">
+                                <h4>Mittwoch - Rainbow Six Siege</h4>
+                                <p>Modus: 5v5 Custom Game</p>
+                                <p>Zeit: 19:00 - 19:40</p>
+                                <p>Ziel: First to 4 Rounds</p>
+                            </div>
+                            <div class="termin">
+                                <h4>Donnerstag - Brawlhalla</h4>
+                                <p>Modus: 1v1 Tournament</p>
+                                <p>Zeit: 19:00 - 19:15</p>
+                                <p>Ziel: Best of 3 Stock Battle</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="rangliste">
+                <h2>Aktuelle Rangliste</h2>
+                <div class="rangliste-tabelle">
+                    <div class="rangliste-header">
+                        <div class="rang">Rang</div>
+                        <div class="name">Name</div>
+                        <div class="punkte">Punkte</div>
+                    </div>
+                    <div id="rangliste-eintraege">
+                        <!-- Wird durch JavaScript gefüllt -->
+                    </div>
+                </div>
+            </section>
+
+            <section id="anmeldung">
+                <h2>Turnieranmeldung</h2>
+                <div id="anmeldung-container">
+                    <!-- Wird dynamisch gefüllt -->
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Call-Center Gaming Championship 2025</h4>
+                    <p>Das größte Gaming-Event des Jahres für Call-Center Mitarbeiter</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Wichtige Termine</h4>
+                    <ul>
+                        <li>Start: 07.04.2025</li>
+                        <li>Woche 1: 07.04 - 11.04.2025</li>
+                        <li>Woche 2: 14.04 - 18.04.2025</li>
+                        <li>Woche 3: 21.04 - 25.04.2025</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Kontakt</h4>
+                    <p>Bei Fragen wendet euch an die Turnierorganisation</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Call-Center Gaming Championship - Alle Rechte vorbehalten</p>
+            </div>
+        </footer>
+    </div>
+
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="schliesseLoginModal()">&times;</span>
+            <h2>Login</h2>
+            <div id="login-error" class="error-message"></div>
+            <div data-netlify-identity-button>Login mit Netlify Identity</div>
+            <p class="login-hint">Bitte melden Sie sich mit Ihrem Netlify-Konto an</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Netlify Identity Event Handler
+        netlifyIdentity.on('init', user => {
+            if (user) {
+                handleNetlifyLogin(user);
+            }
+        });
+
+        netlifyIdentity.on('login', user => {
+            handleNetlifyLogin(user);
+            schliesseLoginModal();
+        });
+
+        netlifyIdentity.on('logout', () => {
+            handleNetlifyLogout();
+        });
+    </script>
+</body>
+</html> 

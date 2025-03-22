@@ -1,0 +1,21 @@
+{
+	"geolocation": {
+		"data": {
+			"city": "Hanover",
+			"country": {
+				"code": "DE",
+				"name": "Germany"
+			},
+			"subdivision": {
+				"code": "NI",
+				"name": "Lower Saxony"
+			},
+			"timezone": "Europe/Berlin",
+			"latitude": 52.4062,
+			"longitude": 9.7932,
+			"postalCode": "30655"
+		},
+		"timestamp": 1742598678569
+	},
+	"siteId": "65ed5ef7-feff-4ef9-b769-06b3ffb35aa1"
+}
