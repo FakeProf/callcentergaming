@@ -269,31 +269,18 @@ const authService = new AuthService();
 // Login-Funktion aktualisieren
 async function handleLogin(event) {
     event.preventDefault();
-    
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-    const loginButton = document.querySelector('#login-form button');
-    
-    // Button-Status während Login
-    loginButton.disabled = true;
-    loginButton.textContent = 'Anmeldung läuft...';
+    if (window.netlifyIdentity) {
+        window.netlifyIdentity.open('login');
+    } else {
+        console.error('Netlify Identity Widget nicht geladen');
+    }
+}
 
-    try {
-        const result = await authService.login(username, password);
-        
-        if (result.success) {
-            updateLoginStatus(true, result.user);
-            schliesseLoginModal();
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
-        } else {
-            showError(result.error);
-        }
-    } catch (error) {
-        showError('Ein Fehler ist aufgetreten. Bitte versuche es später erneut.');
-    } finally {
-        loginButton.disabled = false;
-        loginButton.textContent = 'Einloggen';
+function handleLogout() {
+    if (window.netlifyIdentity) {
+        window.netlifyIdentity.open('logout');
+    } else {
+        console.error('Netlify Identity Widget nicht geladen');
     }
 }
 
