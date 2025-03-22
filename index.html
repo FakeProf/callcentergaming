@@ -222,6 +222,17 @@
         netlifyIdentity.on('logout', () => {
             handleNetlifyLogout();
         });
+
+        // Netlify Identity Initialisierung
+        if (window.netlifyIdentity) {
+            window.netlifyIdentity.on("init", user => {
+                if (!user) {
+                    window.netlifyIdentity.on("login", () => {
+                        document.location.href = "/";
+                    });
+                }
+            });
+        }
     </script>
 </body>
 </html> 

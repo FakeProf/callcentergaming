@@ -11,4 +11,16 @@
   NODE_VERSION = "18"
 
 [functions]
-  directory = "functions" 
+  directory = "functions"
+
+[dev]
+  framework = "#custom"
+  command = "npm run dev"
+  targetPort = 3000
+  port = 8888
+  publish = "."
+  jwtRolePath = "app_metadata.authorization.roles"
+  autoLaunch = true
+
+[identity]
+  enable = true 

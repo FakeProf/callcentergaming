@@ -1,0 +1,18 @@
+{
+  "enableIdentity": true,
+  "registration": {
+    "open": true,
+    "autoConfirm": true
+  },
+  "webhook": {
+    "url": ""
+  },
+  "settings": {
+    "rate_limit": {
+      "autoconfirm": {
+        "count": 10,
+        "period": "hour"
+      }
+    }
+  }
+} 
