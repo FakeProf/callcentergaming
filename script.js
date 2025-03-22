@@ -279,17 +279,27 @@ async function handleLogin(event) {
 function handleLogout() {
     if (window.netlifyIdentity) {
         window.netlifyIdentity.open('logout');
-        handleNetlifyLogout(); // Sofortige UI-Aktualisierung
     } else {
         console.error('Netlify Identity Widget nicht geladen');
     }
+}
+
+function handleNetlifyLogin(user) {
+    const sessionData = {
+        username: user.user_metadata.full_name || user.email,
+        loginTime: new Date().toISOString(),
+        isActive: true
+    };
+    localStorage.setItem('currentSession', JSON.stringify(sessionData));
+    updateLoginStatus(true, sessionData.username);
+    updateAnmeldungSection();
 }
 
 function handleNetlifyLogout() {
     localStorage.removeItem('currentSession');
     updateLoginStatus(false);
     updateAnmeldungSection();
-    window.location.reload(); // Seite neu laden, um sicherzustellen, dass alles zurückgesetzt wird
+    window.location.reload();
 }
 
 function updateLoginStatus(isLoggedIn, username = null) {
@@ -646,23 +656,6 @@ async function renderSpieltagListe(wochenId) {
     spieltagContainer.innerHTML = html;
 }
 
-function handleNetlifyLogin(user) {
-    const sessionData = {
-        username: user.user_metadata.full_name || user.email,
-        loginTime: new Date().toISOString(),
-        isActive: true
-    };
-    localStorage.setItem('currentSession', JSON.stringify(sessionData));
-    updateLoginStatus(true, sessionData.username);
-    updateAnmeldungSection();
-}
-
-function handleNetlifyLogout() {
-    localStorage.removeItem('currentSession');
-    updateLoginStatus(false);
-    updateAnmeldungSection();
-}
-
 async function updateAnmeldungSection() {
     const container = document.getElementById('anmeldung-container');
     if (!container) return;
@@ -752,5 +745,17 @@ async function toggleAnmeldung(spielName) {
     } catch (error) {
         console.error('Fehler beim Toggle der Anmeldung:', error);
         alert('Es ist ein Fehler aufgetreten. Bitte versuche es später erneut.');
+    }
+}
+
+function checkLoginStatus() {
+    if (window.netlifyIdentity) {
+        window.netlifyIdentity.on('init', user => {
+            if (user) {
+                handleNetlifyLogin(user);
+            } else {
+                handleNetlifyLogout();
+            }
+        });
     }
 }
