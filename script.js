@@ -279,9 +279,17 @@ async function handleLogin(event) {
 function handleLogout() {
     if (window.netlifyIdentity) {
         window.netlifyIdentity.open('logout');
+        handleNetlifyLogout(); // Sofortige UI-Aktualisierung
     } else {
         console.error('Netlify Identity Widget nicht geladen');
     }
+}
+
+function handleNetlifyLogout() {
+    localStorage.removeItem('currentSession');
+    updateLoginStatus(false);
+    updateAnmeldungSection();
+    window.location.reload(); // Seite neu laden, um sicherzustellen, dass alles zurückgesetzt wird
 }
 
 function updateLoginStatus(isLoggedIn, username = null) {

@@ -1,7 +1,7 @@
-import { getDatabase } from './util/db.js';
+const { getDatabase } = require('./util/db');
 
-export const handler = async (event, context) => {
-    // Prüfe Authentifizierung
+exports.handler = async function(event, context) {
+    // Überprüfe, ob der Benutzer authentifiziert ist
     if (!context.clientContext?.user) {
         return {
             statusCode: 401,
@@ -9,19 +9,53 @@ export const handler = async (event, context) => {
         };
     }
 
-    try {
-        const { game, username, action } = JSON.parse(event.body);
-        const supabase = getDatabase();
+    const db = getDatabase();
+    const user = context.clientContext.user;
 
-        if (action === 'register') {
-            // Prüfe, ob das Spiel bereits voll ist
-            const { data: currentRegistrations, error: fetchError } = await supabase
+    // GET-Anfrage: Hole alle Anmeldungen
+    if (event.httpMethod === 'GET') {
+        try {
+            const { data: registrations, error } = await db
                 .from('registrations')
-                .select('username')
+                .select('*');
+
+            if (error) throw error;
+
+            // Formatiere die Daten in das erwartete Format
+            const formattedRegistrations = {};
+            registrations.forEach(reg => {
+                if (!formattedRegistrations[reg.game]) {
+                    formattedRegistrations[reg.game] = [];
+                }
+                formattedRegistrations[reg.game].push(reg.username);
+            });
+
+            return {
+                statusCode: 200,
+                body: JSON.stringify(formattedRegistrations)
+            };
+        } catch (error) {
+            return {
+                statusCode: 500,
+                body: JSON.stringify({ error: 'Fehler beim Abrufen der Anmeldungen' })
+            };
+        }
+    }
+
+    // POST-Anfrage: Toggle Anmeldung
+    if (event.httpMethod === 'POST') {
+        try {
+            const { game, username, action } = JSON.parse(event.body);
+
+            // Hole aktuelle Anmeldungen
+            const { data: currentRegistrations, error: fetchError } = await db
+                .from('registrations')
+                .select('*')
                 .eq('game', game);
 
             if (fetchError) throw fetchError;
 
+            // Prüfe, ob das Spiel bereits voll ist
             if (currentRegistrations.length >= 8) {
                 return {
                     statusCode: 400,
@@ -29,45 +63,52 @@ export const handler = async (event, context) => {
                 };
             }
 
-            // Füge neue Registrierung hinzu
-            const { error: insertError } = await supabase
+            // Prüfe, ob der Benutzer bereits angemeldet ist
+            const isRegistered = currentRegistrations.some(reg => reg.username === username);
+
+            if (isRegistered) {
+                // Abmelden
+                const { error: deleteError } = await db
+                    .from('registrations')
+                    .delete()
+                    .eq('game', game)
+                    .eq('username', username);
+
+                if (deleteError) throw deleteError;
+            } else {
+                // Anmelden
+                const { error: insertError } = await db
+                    .from('registrations')
+                    .insert([{ game, username }]);
+
+                if (insertError) throw insertError;
+            }
+
+            // Hole aktualisierte Anmeldungen
+            const { data: updatedRegistrations, error: updateError } = await db
                 .from('registrations')
-                .insert([{ game, username }]);
+                .select('*')
+                .eq('game', game);
 
-            if (insertError) throw insertError;
+            if (updateError) throw updateError;
 
-        } else if (action === 'unregister') {
-            // Entferne Registrierung
-            const { error: deleteError } = await supabase
-                .from('registrations')
-                .delete()
-                .eq('game', game)
-                .eq('username', username);
-
-            if (deleteError) throw deleteError;
+            return {
+                statusCode: 200,
+                body: JSON.stringify({
+                    success: true,
+                    registrations: updatedRegistrations.map(reg => reg.username)
+                })
+            };
+        } catch (error) {
+            return {
+                statusCode: 500,
+                body: JSON.stringify({ error: 'Fehler beim Aktualisieren der Anmeldung' })
+            };
         }
-
-        // Hole aktualisierte Liste der Registrierungen
-        const { data: updatedRegistrations, error: finalError } = await supabase
-            .from('registrations')
-            .select('username')
-            .eq('game', game);
-
-        if (finalError) throw finalError;
-
-        return {
-            statusCode: 200,
-            body: JSON.stringify({
-                success: true,
-                registrations: updatedRegistrations.map(r => r.username)
-            })
-        };
-
-    } catch (error) {
-        console.error('Fehler:', error);
-        return {
-            statusCode: 500,
-            body: JSON.stringify({ error: 'Interner Serverfehler' })
-        };
     }
+
+    return {
+        statusCode: 405,
+        body: JSON.stringify({ error: 'Methode nicht erlaubt' })
+    };
 }; 
