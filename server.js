@@ -5,13 +5,12 @@ const fs = require('fs').promises;
 const path = require('path');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = 3000;
 
+// Middleware
 app.use(cors());
 app.use(bodyParser.json());
-
-// Statische Dateien aus dem aktuellen Verzeichnis bereitstellen
-app.use(express.static(__dirname));
+app.use(express.static('.'));
 
 // Datei für die Speicherung der Anmeldungen
 const REGISTRATIONS_FILE = 'registrations.json';
@@ -66,11 +65,6 @@ app.post('/api/registrations/:game', async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: 'Fehler bei der Anmeldung/Abmeldung' });
     }
-});
-
-// Alle anderen Anfragen zur index.html weiterleiten
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Initialisiere die registrations.json, falls sie nicht existiert

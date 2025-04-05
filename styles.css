@@ -79,6 +79,32 @@ section {
     background-color: #f8f9fa;
     border-radius: 4px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    color: #2c3e50;
+}
+
+.rangliste-item .platz {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.rangliste-item .punkte {
+    color: #2c3e50;
+}
+
+.rangliste-item .platz-1 {
+    color: #ffd700;
+}
+
+.rangliste-item .platz-2 {
+    color: #c0c0c0;
+}
+
+.rangliste-item .platz-3 {
+    color: #cd7f32;
+}
+
+.rangliste-item .nicht-teilnahme {
+    color: #6c757d;
 }
 
 #spiele-checkboxen {
@@ -145,25 +171,53 @@ main > section.active {
     padding: 1.5rem;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
 }
 
 .regel-box h3 {
-    color: var(--primary-color);
+    color: #2c3e50;
+    margin-top: 0;
     margin-bottom: 1rem;
+    font-size: 1.25rem;
 }
 
 .regel-box ul {
-    list-style-type: none;
-    padding-left: 0;
+    padding-left: 1.5rem;
+    margin: 0;
 }
 
-.regel-box ul li {
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #e9ecef;
+.regel-box li {
+    margin-bottom: 0.5rem;
+    color: #495057;
 }
 
-.regel-box ul li:last-child {
-    border-bottom: none;
+.punktesystem-list li {
+    font-weight: 500;
+    padding: 0.3rem 0;
+}
+
+.punktesystem-list li.platz-1 {
+    color: #ffd700;
+    font-weight: bold;
+}
+
+.punktesystem-list li.platz-2 {
+    color: #c0c0c0;
+    font-weight: bold;
+}
+
+.punktesystem-list li.platz-3 {
+    color: #cd7f32;
+    font-weight: bold;
+}
+
+.punktesystem-list li.platz-4 {
+    color: #2c3e50;
+    font-weight: bold;
+}
+
+.punktesystem-list li.nicht-teilnahme {
+    color: #6c757d;
 }
 
 /* Spielplan Styling */
@@ -346,13 +400,40 @@ main > section.active {
 }
 
 .error-message {
-    display: none;
-    background-color: #ff6b6b;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #dc3545;
     color: white;
     padding: 1rem;
     border-radius: 4px;
-    margin-bottom: 1rem;
-    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    z-index: 1000;
+    animation: slideIn 0.3s ease-out;
+}
+
+.success-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #28a745;
+    color: white;
+    padding: 1rem;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    z-index: 1000;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
 }
 
 .server-info {
@@ -544,7 +625,7 @@ main {
         flex-direction: column;
         text-align: center;
     }
-
+    
     .footer-section {
         margin-bottom: 1.5rem;
     }
@@ -654,100 +735,6 @@ main {
     }
 }
 
-/* Modal Styling */
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-    justify-content: center;
-    align-items: center;
-}
-
-.modal-content {
-    background-color: white;
-    padding: 2rem;
-    border-radius: 8px;
-    width: 90%;
-    max-width: 400px;
-    position: relative;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.close-button {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    font-size: 24px;
-    cursor: pointer;
-    color: #666;
-}
-
-.close-button:hover {
-    color: #000;
-}
-
-.form-group {
-    margin-bottom: 1rem;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: #333;
-}
-
-.form-group input {
-    width: 100%;
-    padding: 0.8rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 1rem;
-}
-
-.error-message {
-    display: none;
-    background-color: #ff6b6b;
-    color: white;
-    padding: 1rem;
-    border-radius: 4px;
-    margin-bottom: 1rem;
-    text-align: center;
-}
-
-.login-hint {
-    margin-top: 1rem;
-    color: #666;
-    font-size: 0.9rem;
-    text-align: center;
-}
-
-#login-form button {
-    width: 100%;
-    padding: 1rem;
-    background-color: var(--secondary-color);
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1rem;
-    font-weight: bold;
-    margin-top: 1rem;
-}
-
-#login-form button:hover {
-    background-color: #2980b9;
-}
-
-#login-form button:disabled {
-    background-color: #95a5a6;
-    cursor: not-allowed;
-}
-
 /* Neue Styles für die Spieltag-Anmeldung */
 .spieltag-anmeldung {
     margin-top: 2rem;
@@ -762,73 +749,118 @@ main {
 .spieltage-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
-    margin-top: 1rem;
+    gap: 20px;
+    padding: 20px;
 }
 
 .spieltag-karte {
-    background: white;
+    background: #fff;
     border-radius: 8px;
-    padding: 1.5rem;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transition: all 0.3s ease;
+    padding: 20px;
+    transition: transform 0.2s;
+}
+
+.spieltag-karte:hover {
+    transform: translateY(-5px);
 }
 
 .spieltag-karte.angemeldet {
-    border-left: 4px solid var(--secondary-color);
+    border: 2px solid #4CAF50;
 }
 
 .spieltag-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid #eee;
+    margin-bottom: 15px;
 }
 
 .spieltag-header h4 {
     margin: 0;
-    color: var(--primary-color);
+    color: #333;
+}
+
+.spieltag-header .datum {
+    color: #666;
+    font-size: 0.9em;
 }
 
 .spieltag-details {
-    margin-bottom: 1rem;
+    color: #666;
+}
+
+.spieltag-details p {
+    margin: 5px 0;
 }
 
 .teilnehmer-count {
-    margin: 1rem 0;
-    padding: 0.5rem;
-    background: #f8f9fa;
-    border-radius: 4px;
-    text-align: center;
+    margin: 10px 0;
+    font-weight: bold;
+    color: #333;
+}
+
+.teilnehmer-liste {
+    margin: 10px 0;
+}
+
+.teilnehmer-liste h5 {
+    margin: 5px 0;
+    color: #333;
+}
+
+.teilnehmer-badge {
+    display: inline-block;
+    background: #e0e0e0;
+    padding: 3px 8px;
+    border-radius: 12px;
+    margin: 2px;
+    font-size: 0.9em;
 }
 
 .anmeldung-button {
     width: 100%;
-    padding: 0.8rem;
+    padding: 10px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     font-weight: bold;
-    transition: all 0.3s ease;
-    background-color: var(--secondary-color);
+    transition: background-color 0.2s;
+    margin-top: 10px;
+}
+
+.anmeldung-button.anmelden {
+    background-color: #4CAF50;
     color: white;
 }
 
-.anmeldung-button.angemeldet {
-    background-color: var(--accent-color);
+.anmeldung-button.anmelden:hover {
+    background-color: #45a049;
 }
 
-.anmeldung-button:hover {
-    opacity: 0.9;
+.anmeldung-button.abmelden {
+    background-color: #f44336;
+    color: white;
 }
 
-.anmeldung-info {
+.anmeldung-button.abmelden:hover {
+    background-color: #da190b;
+}
+
+.error-message {
+    background-color: #ffebee;
+    color: #c62828;
+    padding: 15px;
+    border-radius: 4px;
+    margin: 20px;
     text-align: center;
-    padding: 2rem;
-    background: #f8f9fa;
-    border-radius: 8px;
+}
+
+.woche-anmeldung {
+    margin-bottom: 30px;
+}
+
+.woche-anmeldung h3 {
+    color: #333;
+    margin-bottom: 20px;
+    padding-left: 20px;
 }
 
 /* Aktualisierte Ranglisten-Styles */
@@ -905,4 +937,109 @@ main {
         padding: 0.8rem;
         font-size: 0.9rem;
     }
+}
+
+.login-container {
+    max-width: 400px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.login-container h2 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.participant-select {
+    width: 100%;
+    padding: 0.8rem;
+    margin: 1rem 0;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    font-size: 1rem;
+    background-color: white;
+    color: #495057;
+}
+
+.login-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+}
+
+.login-button:hover {
+    background-color: #45a049;
+}
+
+.tournament-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.tournament-container h2 {
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+#registrationStatus {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: 4px;
+    background-color: #e9ecef;
+    color: #495057;
+    text-align: center;
+}
+
+.game-day {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.game-day h3 {
+    color: #2c3e50;
+    margin: 0 0 0.5rem 0;
+    font-size: 1.25rem;
+}
+
+.game-day p {
+    color: #495057;
+    margin: 0 0 1rem 0;
+}
+
+.register-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s;
+}
+
+.register-button:hover {
+    background-color: #45a049;
+}
+
+.register-button.registered {
+    background-color: #dc3545;
+}
+
+.register-button.registered:hover {
+    background-color: #c82333;
 } 

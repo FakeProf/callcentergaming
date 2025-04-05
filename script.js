@@ -143,628 +143,231 @@ const turnierSpielplan = {
     }
 };
 
-// Globale Variable für den aktuell eingeloggten Spieler
-let aktuellerSpieler = null;
+// Globale Variablen
+let currentUser = null;
+let gameDays = [];
+let registrations = {};
 
-// Benutzerverwaltung
-const initialUsers = {
-    "Albaner": { password: "gaming2025", games: [] },
-    "JJ": { password: "gaming2025", games: [] },
-    "Julian": { password: "gaming2025", games: [] },
-    "Juelsk": { password: "gaming2025", games: [] },
-    "MalaAri": { password: "gaming2025", games: [] },
-    "mu7asa4": { password: "gaming2025", games: [] },
-    "The Fog182": { password: "gaming2025", games: [] },
-    "Yassumx": { password: "gaming2025", games: [] }
-};
+// DOM-Elemente
+const loginContainer = document.getElementById('login-container');
+const tournamentContainer = document.getElementById('tournament-container');
+const gameDaysContainer = document.getElementById('game-days-container');
+const errorMessage = document.getElementById('error-message');
+const participantSelect = document.getElementById('participantSelect');
+const selectParticipantBtn = document.getElementById('selectParticipant');
 
-// Login Modal Funktionen
-function zeigeLoginModal() {
-    const modal = document.getElementById('login-modal');
-    if (modal) {
-        modal.style.display = 'flex';
-    } else {
-        console.error('Login Modal nicht gefunden');
-    }
-}
-
-function schliesseLoginModal() {
-    const modal = document.getElementById('login-modal');
-    if (modal) {
-        modal.style.display = 'none';
-    }
-}
-
-// Fehler-Handling Funktionen
-function showError(message) {
-    const errorDiv = document.getElementById('login-error');
-    errorDiv.textContent = message;
-    errorDiv.style.display = 'block';
-    
-    // Fehler nach 5 Sekunden ausblenden
-    setTimeout(() => {
-        errorDiv.style.display = 'none';
-    }, 5000);
-}
-
-// Vorbereitung für Server-Integration
-class AuthService {
-    constructor() {
-        // Später für Server-URL
-        this.baseUrl = 'https://api.yourserver.com';
-        
-        // Temporär: Lokale Benutzerdaten
-        this.users = {
-            "Albaner": { password: "gaming2025", games: [] },
-            "JJ": { password: "gaming2025", games: [] },
-            "Julian": { password: "gaming2025", games: [] },
-            "Juelsk": { password: "gaming2025", games: [] },
-            "MalaAri": { password: "gaming2025", games: [] },
-            "mu7asa4": { password: "gaming2025", games: [] },
-            "The Fog182": { password: "gaming2025", games: [] },
-            "Yassumx": { password: "gaming2025", games: [] }
-        };
-    }
-
-    // Für spätere Server-Integration vorbereitet
-    async login(username, password) {
-        try {
-            // Später: Server-Anfrage
-            // const response = await fetch(`${this.baseUrl}/auth/login`, {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //     },
-            //     body: JSON.stringify({ username, password })
-            // });
-            
-            // Temporär: Lokale Überprüfung
-            const user = this.users[username];
-            
-            if (!user) {
-                throw new Error('Benutzer nicht gefunden');
-            }
-            
-            if (user.password !== password) {
-                throw new Error('Falsches Passwort');
-            }
-
-            // Erfolgreicher Login
-            const sessionData = {
-                username: username,
-                loginTime: new Date().toISOString(),
-                isActive: true
-            };
-
-            localStorage.setItem('currentSession', JSON.stringify(sessionData));
-            return { success: true, user: username };
-
-        } catch (error) {
-            return { success: false, error: error.message };
-        }
-    }
-
-    // Für spätere Server-Integration
-    async logout() {
-        try {
-            // Später: Server-Anfrage
-            // await fetch(`${this.baseUrl}/auth/logout`, {
-            //     method: 'POST',
-            //     headers: {
-            //         'Authorization': `Bearer ${this.getToken()}`
-            //     }
-            // });
-
-            localStorage.removeItem('currentSession');
-            return { success: true };
-        } catch (error) {
-            return { success: false, error: error.message };
-        }
-    }
-}
-
-// Instanz des Auth-Services
-const authService = new AuthService();
-
-// Login-Funktion aktualisieren
-async function handleLogin(event) {
-    event.preventDefault();
-    if (window.netlifyIdentity) {
-        window.netlifyIdentity.open('login');
-    } else {
-        console.error('Netlify Identity Widget nicht geladen');
-    }
-}
-
-function handleLogout() {
-    if (window.netlifyIdentity) {
-        window.netlifyIdentity.logout();
-    } else {
-        console.error('Netlify Identity Widget nicht geladen');
-    }
-}
-
-function handleNetlifyLogin(user) {
-    const sessionData = {
-        username: user.user_metadata.full_name || user.email,
-        loginTime: new Date().toISOString(),
-        isActive: true
-    };
-    localStorage.setItem('currentSession', JSON.stringify(sessionData));
-    updateLoginStatus(true, sessionData.username);
-    updateAnmeldungSection();
-}
-
-function handleNetlifyLogout() {
-    localStorage.removeItem('currentSession');
-    updateLoginStatus(false);
-    updateAnmeldungSection();
-}
-
-function updateLoginStatus(isLoggedIn, username = null) {
-    const userInfo = document.getElementById('user-info');
-    const loginButton = document.getElementById('login-button');
-    const logoutButton = document.getElementById('logout-button');
-
-    if (isLoggedIn && username) {
-        userInfo.textContent = `Eingeloggt als: ${username}`;
-        loginButton.style.display = 'none';
-        logoutButton.style.display = 'block';
-        renderAnmeldungBereich();
-    } else {
-        userInfo.textContent = '';
-        loginButton.style.display = 'block';
-        logoutButton.style.display = 'none';
-        renderAnmeldungBereich();
-    }
-}
-
-// Funktion zum Anzeigen und Verwalten der Spieleanmeldungen
-function showUserGames(username) {
-    const users = JSON.parse(localStorage.getItem('users'));
-    const user = users[username];
-    const anmeldungSection = document.getElementById('anmeldung');
-
-    let html = `
-        <h2>Spieleverwaltung für ${username}</h2>
-        <div class="games-management">
-            <div class="games-grid">
-    `;
-
-    // Alle verfügbaren Spiele anzeigen
-    Object.keys(turnierSpielplan).forEach(woche => {
-        turnierSpielplan[woche].spiele.forEach(spiel => {
-            const isRegistered = user.games.includes(spiel.spiel);
-        html += `
-                <div class="game-registration-card">
-                    <h3>${spiel.spiel}</h3>
-                    <p>Datum: ${spiel.datum}</p>
-                    <p>Zeit: ${spiel.uhrzeit}</p>
-                    <button 
-                        onclick="toggleGameRegistration('${username}', '${spiel.spiel}')"
-                        class="registration-button ${isRegistered ? 'registered' : ''}"
-                    >
-                        ${isRegistered ? 'Abmelden' : 'Anmelden'}
-                    </button>
-            </div>
-        `;
-        });
-    });
-
-    html += `
-            </div>
-        </div>
-    `;
-    
-    anmeldungSection.innerHTML = html;
-}
-
-// Funktion zum An-/Abmelden für Spiele
-function toggleGameRegistration(username, game) {
-    const users = JSON.parse(localStorage.getItem('users'));
-    const user = users[username];
-
-    if (user.games.includes(game)) {
-        user.games = user.games.filter(g => g !== game);
-    } else {
-        user.games.push(game);
-    }
-
-    users[username] = user;
-    localStorage.setItem('users', JSON.stringify(users));
-    showUserGames(username); // Aktualisiere die Anzeige
-    aktualisiereSpielplan(); // Aktualisiere den Spielplan
-}
-
-// Vereinfachte Ranglisten-Funktionalität
-const spielerListe = [
-    "Albaner",
-    "JJ",
-    "Julian",
-    "Juelsk",
-    "MalaAri",
-    "mu7asa4",
-    "The Fog182",
-    "Yassumx"
+// Teilnehmerliste
+const participants = [
+    { id: '1', name: 'Albaner' },
+    { id: '2', name: 'JJ' },
+    { id: '3', name: 'Julian' },
+    { id: '4', name: 'Juelsk' },
+    { id: '5', name: 'MalaAri' },
+    { id: '6', name: 'mu7asa4' },
+    { id: '7', name: 'The Fog182' },
+    { id: '8', name: 'Yassumx' }
 ];
 
-function initializeRangliste() {
-    const ranglisteContainer = document.getElementById('rangliste-eintraege');
-    if (!ranglisteContainer) {
-        console.error('Rangliste-Container nicht gefunden');
+// Hilfsfunktionen
+function showError(message) {
+    if (errorMessage) {
+        errorMessage.textContent = message;
+        errorMessage.style.display = 'block';
+    } else {
+        console.error(message);
+    }
+}
+
+function hideError() {
+    if (errorMessage) {
+        errorMessage.style.display = 'none';
+    }
+}
+
+function showSuccess(message) {
+    const successDiv = document.createElement('div');
+    successDiv.className = 'success-message';
+    successDiv.textContent = message;
+    document.body.appendChild(successDiv);
+    setTimeout(() => successDiv.remove(), 5000);
+}
+
+// Teilnehmerauswahl verarbeiten
+function handleParticipantSelection() {
+    const selectedId = participantSelect.value;
+    if (!selectedId) {
+        showError('Bitte wähle einen Teilnehmer aus');
         return;
     }
 
-    let html = '';
-    spielerListe.sort().forEach((spieler, index) => {
-        html += `
-            <div class="rangliste-zeile ${index < 3 ? 'top-' + (index + 1) : ''}">
-                <div class="rang">${index + 1}</div>
-                <div class="name">${spieler}</div>
-                <div class="punkte">0</div>
-        </div>
-    `;
-    });
-
-    ranglisteContainer.innerHTML = html;
-}
-
-// Führe die Initialisierung sofort aus
-document.addEventListener('DOMContentLoaded', initializeRangliste);
-function getTeilnehmerFuerSpiel(spielName) {
-    const verfügbareSpieler = teilnehmerListe.filter(t => 
-        t.spiele.includes(spielName)
-    );
-    
-    return verfügbareSpieler.map(spieler => 
-        `<span class="teilnehmer-badge">${spieler.name}</span>`
-    ).join('');
-}
-
-// Funktion zum Generieren der Spiele-Checkboxen im Anmeldeformular
-function generiereSpielCheckboxen() {
-    const checkboxContainer = document.getElementById('spiele-checkboxen');
-    spieleListe.forEach(spiel => {
-        const checkbox = document.createElement('div');
-        checkbox.innerHTML = `
-            <label>
-                <input type="checkbox" name="spiele" value="${spiel.name}">
-                ${spiel.name}
-            </label>
-        `;
-        checkboxContainer.appendChild(checkbox);
-    });
-}
-
-// Funktion zum Umschalten der Sichtbarkeit der Sektionen
-function zeigeSektion(sektionId) {
-    // Alle Sektionen ausblenden
-    const sektionen = document.querySelectorAll('main > section');
-    sektionen.forEach(sektion => {
-        sektion.style.display = 'none';
-    });
-
-    // Gewählte Sektion einblenden
-    document.getElementById(sektionId).style.display = 'block';
-}
-
-// Funktion für die Anmeldung
-function spielerAnmeldung() {
-    const anmeldungContainer = document.getElementById('anmeldung');
-    anmeldungContainer.innerHTML = `
-        <h2>Turnier-Anmeldung</h2>
-        ${aktuellerSpieler ? spielerVerwaltungAnzeigen() : spielerAuswahlAnzeigen()}
-    `;
-}
-
-function spielerAuswahlAnzeigen() {
-    return `
-        <div class="spieler-auswahl">
-            <h3>Wähle deinen Namen</h3>
-            <select id="spieler-select" class="spieler-dropdown">
-                <option value="">Bitte wählen...</option>
-                ${teilnehmerListe.map(spieler => 
-                    `<option value="${spieler.name}">${spieler.name}</option>`
-                ).join('')}
-            </select>
-            <button onclick="spielerEinloggen()" class="anmelde-button">Anmelden</button>
-        </div>
-    `;
-}
-
-function spielerVerwaltungAnzeigen() {
-    const spieler = teilnehmerListe.find(s => s.name === aktuellerSpieler);
-    return `
-        <div class="spieler-verwaltung">
-            <h3>Angemeldet als: ${aktuellerSpieler}</h3>
-            <div class="spiele-grid">
-                ${spieleListe.map(spiel => `
-                    <div class="spiel-checkbox-container">
-                        <label class="spiel-checkbox">
-                            <input type="checkbox" 
-                                   value="${spiel.name}" 
-                                   ${spieler.spiele.includes(spiel.name) ? 'checked' : ''}
-                                   onchange="spieleAktualisieren(this)">
-                            <span class="checkbox-text">${spiel.name}</span>
-                        </label>
-                    </div>
-                `).join('')}
-            </div>
-            <div class="button-container">
-                <button onclick="spieleSpeichern()" class="save-button">Änderungen speichern</button>
-                <button onclick="spielerAusloggen()" class="logout-button">Abmelden</button>
-            </div>
-        </div>
-    `;
-}
-
-function spielerEinloggen() {
-    const select = document.getElementById('spieler-select');
-    if (select.value) {
-        aktuellerSpieler = select.value;
-        spielerAnmeldung();
-        speicherAktuellenSpieler();
-    } else {
-        alert('Bitte wähle einen Spieler aus!');
+    const selectedParticipant = participants.find(p => p.id === selectedId);
+    if (selectedParticipant) {
+        currentUser = selectedParticipant;
+        updateUI();
     }
 }
 
-function spielerAusloggen() {
-    aktuellerSpieler = null;
-    localStorage.removeItem('aktuellerSpieler');
-    spielerAnmeldung();
-}
+// UI-Aktualisierung
+function updateUI() {
+    if (!loginContainer || !tournamentContainer) {
+        console.error('Erforderliche Container nicht gefunden');
+        return;
+    }
 
-function spieleAktualisieren(checkbox) {
-    const spieler = teilnehmerListe.find(s => s.name === aktuellerSpieler);
-    if (checkbox.checked) {
-        if (!spieler.spiele.includes(checkbox.value)) {
-            spieler.spiele.push(checkbox.value);
+    if (currentUser) {
+        loginContainer.style.display = 'none';
+        tournamentContainer.style.display = 'block';
+    } else {
+        loginContainer.style.display = 'block';
+        tournamentContainer.style.display = 'none';
+    }
+
+    if (gameDaysContainer) {
+        gameDaysContainer.innerHTML = '';
+        if (!Array.isArray(gameDays) || gameDays.length === 0) {
+            gameDaysContainer.innerHTML = '<p>Keine Spieltage verfügbar.</p>';
+            return;
         }
-    } else {
-        spieler.spiele = spieler.spiele.filter(spiel => spiel !== checkbox.value);
-    }
-}
 
-function spieleSpeichern() {
-    // Speichern in localStorage
-    localStorage.setItem('teilnehmerListe', JSON.stringify(teilnehmerListe));
-    alert('Deine Spielauswahl wurde gespeichert!');
-    aktualisiereSpielplan(); // Aktualisiert den Spielplan mit den neuen Anmeldungen
-}
-
-function speicherAktuellenSpieler() {
-    localStorage.setItem('aktuellerSpieler', aktuellerSpieler);
-}
-
-// Anmeldungsfunktionalität
-document.addEventListener('DOMContentLoaded', () => {
-    initializeRangliste();
-    checkLoginStatus();
-    updateAnmeldungSection();
-});
-
-function renderAnmeldungBereich() {
-    const anmeldungContainer = document.getElementById('anmeldung-container');
-    const session = JSON.parse(localStorage.getItem('currentSession'));
-
-    if (!session || !session.isActive) {
-        anmeldungContainer.innerHTML = `
-            <div class="anmeldung-info">
-                <p>Bitte melde dich zuerst an, um dich für Spieltage registrieren zu können.</p>
-            </div>
-        `;
-        return;
-    }
-
-    anmeldungContainer.innerHTML = `
-        <div class="spieltag-anmeldung">
-            <div class="wochen-tabs">
-                <button class="tab-button active" data-woche="woche1">Woche 1: FPS-Woche</button>
-                <button class="tab-button" data-woche="woche2">Woche 2: Party-Spiele</button>
-                <button class="tab-button" data-woche="woche3">Woche 3: Competitive</button>
-            </div>
-            <div id="spieltag-container"></div>
-        </div>
-    `;
-
-    // Event Listener für Tabs
-    document.querySelectorAll('.tab-button').forEach(button => {
-        button.addEventListener('click', (e) => {
-            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-            e.target.classList.add('active');
-            renderSpieltagListe(e.target.dataset.woche);
-        });
-    });
-
-    // Initial erste Woche anzeigen
-    renderSpieltagListe('woche1');
-}
-
-async function renderSpieltagListe(wochenId) {
-    const spieltagContainer = document.getElementById('spieltag-container');
-    const woche = turnierSpielplan[wochenId];
-    const session = JSON.parse(localStorage.getItem('currentSession'));
-
-    try {
-        const response = await fetch('http://localhost:3000/api/registrations');
-        const anmeldungen = await response.json();
-
-        let html = `
-            <div class="woche-anmeldung">
-                <h3>${woche.name}</h3>
-                <div class="spieltage-grid">
-        `;
-
-        woche.spiele.forEach(spiel => {
-            const istAngemeldet = anmeldungen[spiel.spiel] && 
-                                 anmeldungen[spiel.spiel].includes(session?.username);
-            
-            html += `
-                <div class="spieltag-karte ${istAngemeldet ? 'angemeldet' : ''}">
-                    <div class="spieltag-header">
-                        <h4>${spiel.spiel}</h4>
-                        <span class="datum">${spiel.tag}, ${spiel.datum}</span>
-                    </div>
-                    <div class="spieltag-details">
-                        <p>Uhrzeit: ${spiel.uhrzeit}</p>
-                        <p>Status: ${spiel.status}</p>
-                        <div class="teilnehmer-count">
-                            Angemeldete Spieler: ${(anmeldungen[spiel.spiel] || []).length}/8
-                        </div>
-                        <div class="teilnehmer-liste">
-                            <h5>Angemeldete Spieler:</h5>
-                            ${(anmeldungen[spiel.spiel] || []).map(player => 
-                                `<span class="teilnehmer-badge">${player}</span>`
-                            ).join('')}
-                        </div>
-                    </div>
-                    ${session?.isActive ? `
-                        <button onclick="toggleAnmeldung('${spiel.spiel}')" 
-                                class="anmeldung-button ${istAngemeldet ? 'angemeldet' : ''}">
-                            ${istAngemeldet ? 'Abmelden' : 'Anmelden'}
-                        </button>
-                    ` : ''}
-                </div>
+        gameDays.forEach(day => {
+            const dayElement = document.createElement('div');
+            dayElement.className = 'game-day';
+            dayElement.innerHTML = `
+                <h3>${day.description || formatDate(day.date)}</h3>
+                <p>Datum: ${formatDate(day.date)}</p>
+                <button onclick="toggleRegistration(${day.id})" class="register-button ${isRegistered(day.id) ? 'registered' : ''}">
+                    ${isRegistered(day.id) ? 'Abmelden' : 'Anmelden'}
+                </button>
             `;
+            gameDaysContainer.appendChild(dayElement);
         });
-
-        html += `
-                </div>
-            </div>
-        `;
-    } catch (error) {
-        console.error('Fehler beim Rendern des Spieltag-Containers:', error);
-        html = `
-            <div class="woche-anmeldung">
-                <h3>${woche.name}</h3>
-                <div class="spieltage-grid">
-                    <div class="spieltag-karte">
-                        <div class="spieltag-header">
-                            <h4>Fehler</h4>
-                        </div>
-                        <div class="spieltag-details">
-                            <p>Es ist ein Fehler aufgetreten, um die Spieltag-Liste zu rendern.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
     }
-
-    spieltagContainer.innerHTML = html;
 }
 
-async function updateAnmeldungSection() {
-    const container = document.getElementById('anmeldung-container');
-    if (!container) return;
+// Datum formatieren
+function formatDate(dateString) {
+    return new Date(dateString).toLocaleDateString('de-DE', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+}
 
-    const session = JSON.parse(localStorage.getItem('currentSession'));
-    
-    if (!session || !session.isActive) {
-        container.innerHTML = `
-            <div class="anmeldung-info">
-                <p>Bitte melde dich zuerst an, um dich für Spieltage registrieren zu können.</p>
-            </div>
-        `;
-        return;
-    }
+// Registrierungsstatus prüfen
+function isRegistered(gameDayId) {
+    return registrations[gameDayId]?.includes(currentUser?.id) || false;
+}
 
+// Spieltage laden
+async function loadGameDays() {
     try {
-        const response = await fetch('/.netlify/functions/toggle-registration', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        
+        const response = await fetch('/.netlify/functions/get-game-days');
         if (!response.ok) {
-            throw new Error('Fehler beim Abrufen der Anmeldungen');
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Fehler beim Laden der Spieltage');
         }
-
-        const registrierteSpiele = await response.json();
-        
-        let html = '<div class="anmeldung-grid">';
-        
-        // Alle Spiele aus dem Turnierplan durchgehen
-        Object.values(turnierSpielplan).forEach(woche => {
-            woche.spiele.forEach(spiel => {
-                const isRegistriert = registrierteSpiele[spiel.spiel]?.includes(session.username) || false;
-                html += `
-                    <div class="spiel-anmeldung">
-                        <h3>${spiel.spiel}</h3>
-                        <p>Datum: ${spiel.datum}</p>
-                        <p>Zeit: ${spiel.uhrzeit}</p>
-                        <button onclick="toggleAnmeldung('${spiel.spiel}')" 
-                                class="${isRegistriert ? 'abmelden' : 'anmelden'}">
-                            ${isRegistriert ? 'Abmelden' : 'Anmelden'}
-                        </button>
-                    </div>
-                `;
-            });
-        });
-        
-        html += '</div>';
-        container.innerHTML = html;
+        const data = await response.json();
+        if (!data || !Array.isArray(data)) {
+            throw new Error('Ungültiges Datenformat für Spieltage');
+        }
+        gameDays = data;
+        console.log('Geladene Spieltage:', gameDays);
+        updateUI();
     } catch (error) {
-        console.error('Fehler beim Aktualisieren der Anmeldungssektion:', error);
-        container.innerHTML = `
-            <div class="anmeldung-info">
-                <p>Es ist ein Fehler aufgetreten. Bitte versuche es später erneut.</p>
-            </div>
-        `;
+        console.error('Fehler beim Laden der Spieltage:', error);
+        showError('Fehler beim Laden der Spieltage: ' + error.message);
     }
 }
 
-async function toggleAnmeldung(spielName) {
-    const session = JSON.parse(localStorage.getItem('currentSession'));
-    if (!session || !session.isActive) {
-        alert('Bitte melde dich zuerst an.');
+// Registrierungen laden
+async function loadRegistrations() {
+    try {
+        const response = await fetch('/.netlify/functions/get-registrations');
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Fehler beim Laden der Registrierungen');
+        }
+        registrations = await response.json();
+        console.log('Geladene Registrierungen:', registrations);
+        updateUI();
+    } catch (error) {
+        console.error('Fehler beim Laden der Registrierungen:', error);
+        showError('Fehler beim Laden der Registrierungen: ' + error.message);
+    }
+}
+
+// Registrierung umschalten
+async function toggleRegistration(gameDayId) {
+    if (!currentUser) {
+        showError('Bitte melden Sie sich zuerst an');
         return;
     }
 
     try {
+        console.log('Sende Anmeldung für Spieltag:', gameDayId, 'Teilnehmer:', currentUser.id);
+        const requestBody = {
+            gameDayId,
+            participantId: currentUser.id
+        };
+        console.log('Request Body:', requestBody);
+
         const response = await fetch('/.netlify/functions/toggle-registration', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                game: spielName,
-                username: session.username,
-                action: 'toggle'
-            })
+            body: JSON.stringify(requestBody)
         });
+
+        console.log('Server Response Status:', response.status);
+        const result = await response.json();
+        console.log('Server Response:', result);
 
         if (!response.ok) {
-            throw new Error('Fehler beim Aktualisieren der Anmeldung');
+            throw new Error(result.error || 'Fehler bei der Registrierung');
         }
 
-        await updateAnmeldungSection();
+        if (result.error) {
+            throw new Error(result.error);
+        }
+
+        if (!result.registrations) {
+            throw new Error('Keine Registrierungsdaten vom Server erhalten');
+        }
+
+        registrations[gameDayId] = result.registrations;
+        updateUI();
+        showSuccess(result.message);
     } catch (error) {
-        console.error('Fehler beim Toggle der Anmeldung:', error);
-        alert('Es ist ein Fehler aufgetreten. Bitte versuche es später erneut.');
+        console.error('Fehler bei der Registrierung:', error);
+        showError(error.message || 'Es ist ein Fehler aufgetreten. Bitte versuche es später erneut.');
     }
 }
 
-function checkLoginStatus() {
-    if (window.netlifyIdentity) {
-        const user = window.netlifyIdentity.currentUser();
-        if (user) {
-            handleNetlifyLogin(user);
-        } else {
-            handleNetlifyLogout();
-        }
-
-        // Event Listener für Login/Logout
-        window.netlifyIdentity.on('login', user => {
-            handleNetlifyLogin(user);
-            window.netlifyIdentity.close();
+// Initialisierung
+async function initialize() {
+    try {
+        // Teilnehmerliste in Select-Element laden
+        participants.forEach(participant => {
+            const option = document.createElement('option');
+            option.value = participant.id;
+            option.textContent = participant.name;
+            participantSelect.appendChild(option);
         });
 
-        window.netlifyIdentity.on('logout', () => {
-            handleNetlifyLogout();
-            window.netlifyIdentity.close();
-        });
+        // Event Listener für Teilnehmerauswahl
+        selectParticipantBtn.addEventListener('click', handleParticipantSelection);
+
+        await Promise.all([
+            loadGameDays(),
+            loadRegistrations()
+        ]);
+    } catch (error) {
+        console.error('Initialisierungsfehler:', error);
+        showError('Fehler bei der Initialisierung: ' + error.message);
     }
 }
+
+// Event-Listener
+document.addEventListener('DOMContentLoaded', initialize);

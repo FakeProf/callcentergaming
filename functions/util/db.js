@@ -1,12 +1,20 @@
-import { createClient } from '@supabase/supabase-js'
+const { createClient } = require('@supabase/supabase-js');
 
-const supabaseUrl = 'https://jfimhmaasapqfsjthglq.supabase.co'
-const supabaseKey = process.env.SUPABASE_KEY
-const supabase = createClient(supabaseUrl, supabaseKey)
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_ANON_KEY;
 
-export const getDatabase = () => {
-    if (!supabaseUrl || !supabaseKey) {
-        throw new Error('Supabase URL und Key müssen in den Umgebungsvariablen konfiguriert sein')
-    }
-    return supabase
-} 
+if (!supabaseUrl || !supabaseKey) {
+    console.error('Fehlende Umgebungsvariablen:', {
+        url: supabaseUrl ? 'Vorhanden' : 'Fehlt',
+        key: supabaseKey ? 'Vorhanden' : 'Fehlt'
+    });
+    throw new Error('SUPABASE_URL und SUPABASE_ANON_KEY müssen in den Umgebungsvariablen gesetzt sein');
+}
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+function getDatabase() {
+    return supabase;
+}
+
+module.exports = { getDatabase }; 

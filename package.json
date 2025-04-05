@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "netlify dev",
+    "dev": "netlify dev",
     "build": "# no build command needed"
   },
   "dependencies": {

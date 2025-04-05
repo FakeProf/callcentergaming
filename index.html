@@ -5,17 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Call-Center Gaming Championship 2025</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </head>
 <body>
     <div class="page-container">
         <header>
             <h1>Call-Center Gaming Championship 2025</h1>
-            <div id="login-status" class="login-status">
-                <span id="user-info"></span>
-                <button id="login-button" onclick="handleLogin(event)">Login</button>
-                <button id="logout-button" onclick="handleLogout()" style="display: none;">Logout</button>
-            </div>
             <nav>
                 <ul>
                     <li><a href="#spielplan">Spielplan</a></li>
@@ -40,12 +34,12 @@
                     </div>
                     <div class="regel-box">
                         <h3>Punktesystem</h3>
-                        <ul>
-                            <li>1. Platz: 100 Punkte</li>
-                            <li>2. Platz: 75 Punkte</li>
-                            <li>3. Platz: 50 Punkte</li>
-                            <li>4. Platz: 30 Punkte</li>
-                            <li>Nicht-Teilnahme: 15 Punkte</li>
+                        <ul class="punktesystem-list">
+                            <li class="platz-1">1. Platz: 100 Punkte</li>
+                            <li class="platz-2">2. Platz: 75 Punkte</li>
+                            <li class="platz-3">3. Platz: 50 Punkte</li>
+                            <li class="platz-4">4. Platz: 30 Punkte</li>
+                            <li class="nicht-teilnahme">Nicht-Teilnahme: 15 Punkte</li>
                         </ul>
                     </div>
                 </div>
@@ -146,24 +140,47 @@
                 </div>
             </section>
 
-            <section id="rangliste">
-                <h2>Aktuelle Rangliste</h2>
-                <div class="rangliste-tabelle">
-                    <div class="rangliste-header">
-                        <div class="rang">Rang</div>
-                        <div class="name">Name</div>
-                        <div class="punkte">Punkte</div>
+            <section id="rangliste" class="rangliste-section">
+                <h2>Rangliste</h2>
+                <div class="rangliste-container">
+                    <div class="rangliste-item">
+                        <span class="platz platz-1">1. Platz:</span>
+                        <span class="punkte">100 Punkte</span>
                     </div>
-                    <div id="rangliste-eintraege">
-                        <!-- Wird durch JavaScript gefüllt -->
+                    <div class="rangliste-item">
+                        <span class="platz platz-2">2. Platz:</span>
+                        <span class="punkte">75 Punkte</span>
+                    </div>
+                    <div class="rangliste-item">
+                        <span class="platz platz-3">3. Platz:</span>
+                        <span class="punkte">50 Punkte</span>
+                    </div>
+                    <div class="rangliste-item">
+                        <span class="platz">4. Platz:</span>
+                        <span class="punkte">30 Punkte</span>
+                    </div>
+                    <div class="rangliste-item">
+                        <span class="platz nicht-teilnahme">Nicht-Teilnahme:</span>
+                        <span class="punkte">15 Punkte</span>
                     </div>
                 </div>
             </section>
 
             <section id="anmeldung">
                 <h2>Turnieranmeldung</h2>
-                <div id="anmeldung-container">
-                    <!-- Wird dynamisch gefüllt -->
+                <div id="error-message" class="error-message" style="display: none;"></div>
+                
+                <div id="login-container" class="login-container">
+                    <h2>Teilnehmer auswählen</h2>
+                    <select id="participantSelect" class="participant-select">
+                        <option value="">Bitte wähle deinen Namen</option>
+                    </select>
+                    <button id="selectParticipant" class="login-button">Auswählen</button>
+                </div>
+                
+                <div id="tournament-container" class="tournament-container" style="display: none;">
+                    <h2>Verfügbare Spieltage</h2>
+                    <div id="game-days-container"></div>
                 </div>
             </section>
         </main>
@@ -194,44 +211,6 @@
         </footer>
     </div>
 
-    <div id="login-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-button" onclick="schliesseLoginModal()">&times;</span>
-            <h2>Login</h2>
-            <div id="login-error" class="error-message"></div>
-            <div data-netlify-identity-button>Login mit Netlify Identity</div>
-            <p class="login-hint">Bitte melden Sie sich mit Ihrem Netlify-Konto an</p>
-        </div>
-    </div>
-
     <script src="script.js"></script>
-    <script>
-        // Netlify Identity Event Handler
-        netlifyIdentity.on('init', user => {
-            if (user) {
-                handleNetlifyLogin(user);
-            }
-        });
-
-        netlifyIdentity.on('login', user => {
-            handleNetlifyLogin(user);
-            schliesseLoginModal();
-        });
-
-        netlifyIdentity.on('logout', () => {
-            handleNetlifyLogout();
-        });
-
-        // Netlify Identity Initialisierung
-        if (window.netlifyIdentity) {
-            window.netlifyIdentity.on("init", user => {
-                if (!user) {
-                    window.netlifyIdentity.on("login", () => {
-                        document.location.href = "/";
-                    });
-                }
-            });
-        }
-    </script>
 </body>
 </html> 

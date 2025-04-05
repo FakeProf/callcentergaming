@@ -15,9 +15,9 @@
 
 [dev]
   framework = "#custom"
-  command = "npm run dev"
+  command = "node server.js"
   targetPort = 3000
-  port = 8888
+  port = 3001
   publish = "."
   jwtRolePath = "app_metadata.authorization.roles"
   autoLaunch = true
