@@ -2,34 +2,35 @@ const { createClient } = require('@supabase/supabase-js');
 
 function createSupabaseClient() {
     const supabaseUrl = process.env.SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_ANON_KEY;
+    const supabaseKey = process.env.SUPABASE_KEY;
 
     if (!supabaseUrl || !supabaseKey) {
-        throw new Error('Supabase Umgebungsvariablen fehlen');
+        console.error('Fehlende Supabase-Konfiguration:', {
+            url: supabaseUrl ? 'vorhanden' : 'fehlt',
+            key: supabaseKey ? 'vorhanden' : 'fehlt'
+        });
+        throw new Error('Supabase-Konfiguration unvollständig');
     }
 
     console.log('Supabase URL:', supabaseUrl);
     console.log('Supabase Key vorhanden:', !!supabaseKey);
 
-    const supabase = createClient(supabaseUrl, supabaseKey, {
+    return createClient(supabaseUrl, supabaseKey, {
         auth: {
             autoRefreshToken: false,
             persistSession: false
         },
-        db: {
-            schema: 'public'
-        },
         global: {
             headers: {
-                'x-application-name': 'callcenter-tournament',
-                'apikey': supabaseKey
+                'apikey': supabaseKey,
+                'Authorization': `Bearer ${supabaseKey}`,
+                'Content-Type': 'application/json'
             }
+        },
+        db: {
+            schema: 'public'
         }
     });
-
-    return supabase;
 }
 
-module.exports = {
-    createSupabaseClient
-}; 
+module.exports = { createSupabaseClient }; 

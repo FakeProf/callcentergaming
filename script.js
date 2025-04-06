@@ -237,7 +237,7 @@ function updateUI() {
                 <p>Datum: ${formatDate(day.date)}</p>
                 <button onclick="toggleRegistration(${day.id})" class="register-button ${isRegistered(day.id) ? 'registered' : ''}">
                     ${isRegistered(day.id) ? 'Abmelden' : 'Anmelden'}
-                </button>
+                    </button>
             `;
             gameDaysContainer.appendChild(dayElement);
         });

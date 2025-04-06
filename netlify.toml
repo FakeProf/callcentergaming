@@ -1,6 +1,11 @@
 [build]
+  command = "npm install"
   publish = "."
-  command = "# no build command needed"
+  functions = "functions"
+
+[functions]
+  directory = "functions"
+  node_bundler = "esbuild"
 
 [[redirects]]
   from = "/*"
@@ -10,8 +15,17 @@
 [build.environment]
   NODE_VERSION = "18"
 
-[functions]
-  directory = "functions"
+[functions."get-game-days"]
+  included_files = ["functions/supabase-config.js"]
+  environment = { SUPABASE_URL = "https://jfimhmaasapqfsjthglq.supabase.co", SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmY2RkY2RkY2RkY2RkY2RkY2RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTk5OTk5OTksImV4cCI6MjAxNTU3NTk5OX0.YOUR_JWT_TOKEN" }
+
+[functions."get-registrations"]
+  included_files = ["functions/supabase-config.js"]
+  environment = { SUPABASE_URL = "https://jfimhmaasapqfsjthglq.supabase.co", SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmY2RkY2RkY2RkY2RkY2RkY2RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTk5OTk5OTksImV4cCI6MjAxNTU3NTk5OX0.YOUR_JWT_TOKEN" }
+
+[functions."toggle-registration"]
+  included_files = ["functions/supabase-config.js"]
+  environment = { SUPABASE_URL = "https://jfimhmaasapqfsjthglq.supabase.co", SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmY2RkY2RkY2RkY2RkY2RkY2RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTk5OTk5OTksImV4cCI6MjAxNTU3NTk5OX0.YOUR_JWT_TOKEN" }
 
 [dev]
   framework = "#custom"
