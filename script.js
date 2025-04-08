@@ -380,3 +380,34 @@ async function initialize() {
 
 // Event-Listener
 document.addEventListener('DOMContentLoaded', initialize);
+
+function updateGameDaysUI(gameDays, registrations) {
+    const gameDaysContainer = document.getElementById('game-days-container');
+    if (!gameDaysContainer) {
+        console.error('Spieltage-Container nicht gefunden');
+        return;
+    }
+
+    gameDaysContainer.innerHTML = '';
+    
+    gameDays.forEach(gameDay => {
+        const gameDayElement = document.createElement('div');
+        gameDayElement.className = 'game-day';
+        
+        // Berechne die Gesamtzahl der Anmeldungen für diesen Spieltag
+        const totalRegistrations = registrations[gameDay.id] ? registrations[gameDay.id].length : 0;
+        
+        gameDayElement.innerHTML = `
+            <h3>${formatDate(gameDay.date)}</h3>
+            <p>${gameDay.description}</p>
+            <div class="registration-info">
+                <span class="registration-count">Anmeldungen: ${totalRegistrations}</span>
+                <button class="toggle-registration" data-game-day-id="${gameDay.id}">
+                    ${registrations[gameDay.id]?.includes(currentUser) ? 'Abmelden' : 'Anmelden'}
+                </button>
+            </div>
+        `;
+        
+        gameDaysContainer.appendChild(gameDayElement);
+    });
+}

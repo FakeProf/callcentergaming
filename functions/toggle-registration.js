@@ -31,14 +31,14 @@ function bereinigeSpieltage(spieltage) {
 }
 
 exports.handler = async function(event, context) {
-    // CORS Headers
+    // CORS-Header setzen
     const headers = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type',
         'Access-Control-Allow-Methods': 'POST, OPTIONS'
     };
 
-    // Handle OPTIONS request
+    // OPTIONS-Anfrage für CORS
     if (event.httpMethod === 'OPTIONS') {
         return {
             statusCode: 200,
@@ -48,78 +48,48 @@ exports.handler = async function(event, context) {
     }
 
     try {
-        if (event.httpMethod !== 'POST') {
-            return {
-                statusCode: 405,
-                headers,
-                body: JSON.stringify({
-                    error: 'Methode nicht erlaubt'
-                })
-            };
-        }
-
+        const supabase = createSupabaseClient();
+        
+        // Request-Body parsen
         const { gameDayId, participantId } = JSON.parse(event.body);
-
+        
         if (!gameDayId || !participantId) {
             return {
                 statusCode: 400,
                 headers,
-                body: JSON.stringify({
-                    error: 'Spieltag-ID und Teilnehmer-ID sind erforderlich'
-                })
+                body: JSON.stringify({ error: 'Spieltag-ID und Teilnehmer-ID sind erforderlich' })
             };
         }
 
-        const supabase = createSupabaseClient();
-
-        // Aktuellen Spieltag laden
-        const { data: gameDay, error: getDayError } = await supabase
+        // Aktuelle Registrierungen laden
+        const { data: currentGameDay, error: loadError } = await supabase
             .from('game_days')
-            .select('*')
+            .select('registrations')
             .eq('id', gameDayId)
             .single();
 
-        if (getDayError) {
-            console.error('Fehler beim Laden des Spieltags:', getDayError);
-            if (getDayError.code === '42501') {
-                return {
-                    statusCode: 403,
-                    headers,
-                    body: JSON.stringify({
-                        error: 'Keine Berechtigung zum Zugriff auf die Daten',
-                        details: getDayError.message
-                    })
-                };
-            }
+        if (loadError) {
+            console.error('Fehler beim Laden des Spieltags:', loadError);
             return {
                 statusCode: 500,
                 headers,
-                body: JSON.stringify({
-                    error: 'Fehler beim Laden des Spieltags',
-                    details: getDayError.message
-                })
-            };
-        }
-
-        if (!gameDay) {
-            return {
-                statusCode: 404,
-                headers,
-                body: JSON.stringify({
-                    error: 'Spieltag nicht gefunden'
-                })
+                body: JSON.stringify({ error: 'Fehler beim Laden des Spieltags' })
             };
         }
 
         // Registrierungen aktualisieren
-        const registrations = gameDay.registrations || [];
-        const isRegistered = registrations.includes(participantId);
+        let updatedRegistrations = currentGameDay.registrations || [];
+        const isRegistered = updatedRegistrations.includes(participantId);
 
-        const updatedRegistrations = isRegistered
-            ? registrations.filter(id => id !== participantId)
-            : [...registrations, participantId];
+        if (isRegistered) {
+            // Teilnehmer abmelden
+            updatedRegistrations = updatedRegistrations.filter(id => id !== participantId);
+        } else {
+            // Teilnehmer anmelden
+            updatedRegistrations.push(participantId);
+        }
 
-        // Spieltag aktualisieren
+        // Datenbank aktualisieren
         const { error: updateError } = await supabase
             .from('game_days')
             .update({ registrations: updatedRegistrations })
@@ -127,23 +97,10 @@ exports.handler = async function(event, context) {
 
         if (updateError) {
             console.error('Fehler beim Aktualisieren der Registrierungen:', updateError);
-            if (updateError.code === '42501') {
-                return {
-                    statusCode: 403,
-                    headers,
-                    body: JSON.stringify({
-                        error: 'Keine Berechtigung zum Aktualisieren der Daten',
-                        details: updateError.message
-                    })
-                };
-            }
             return {
                 statusCode: 500,
                 headers,
-                body: JSON.stringify({
-                    error: 'Fehler beim Aktualisieren der Registrierungen',
-                    details: updateError.message
-                })
+                body: JSON.stringify({ error: 'Fehler beim Aktualisieren der Registrierungen' })
             };
         }
 
@@ -153,19 +110,16 @@ exports.handler = async function(event, context) {
             statusCode: 200,
             headers,
             body: JSON.stringify({
-                message: isRegistered ? 'Abmeldung erfolgreich' : 'Anmeldung erfolgreich',
+                message: isRegistered ? 'Erfolgreich abgemeldet' : 'Erfolgreich angemeldet',
                 registrations: updatedRegistrations
             })
         };
     } catch (error) {
-        console.error('Serverfehler:', error);
+        console.error('Unerwarteter Fehler:', error);
         return {
             statusCode: 500,
             headers,
-            body: JSON.stringify({
-                error: 'Interner Serverfehler',
-                details: error.message
-            })
+            body: JSON.stringify({ error: 'Ein unerwarteter Fehler ist aufgetreten' })
         };
     }
 }; 

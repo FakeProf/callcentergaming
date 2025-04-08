@@ -21,14 +21,14 @@ function bereinigeSpieltage(spieltage) {
 }
 
 exports.handler = async function(event, context) {
-    // CORS Headers
+    // CORS-Header setzen
     const headers = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
+        'Access-Control-Allow-Methods': 'GET, OPTIONS'
     };
 
-    // Handle OPTIONS request
+    // OPTIONS-Anfrage für CORS
     if (event.httpMethod === 'OPTIONS') {
         return {
             statusCode: 200,
@@ -39,71 +39,41 @@ exports.handler = async function(event, context) {
 
     try {
         const supabase = createSupabaseClient();
-
-        console.log('Lade Registrierungen aus der Datenbank...');
-        const { data: spieltage, error } = await supabase
+        
+        // Registrierungen aus der Datenbank laden
+        const { data: gameDays, error } = await supabase
             .from('game_days')
-            .select('id, date, registrations')
+            .select('id, registrations')
             .order('date', { ascending: true });
 
         if (error) {
-            console.error('Datenbankfehler:', error);
-            if (error.code === '42501') {
-                return {
-                    statusCode: 403,
-                    headers,
-                    body: JSON.stringify({
-                        error: 'Keine Berechtigung zum Zugriff auf die Daten',
-                        details: error.message
-                    })
-                };
-            }
+            console.error('Fehler beim Laden der Registrierungen:', error);
             return {
                 statusCode: 500,
                 headers,
-                body: JSON.stringify({
-                    error: 'Fehler beim Laden der Registrierungen',
-                    details: error.message
-                })
+                body: JSON.stringify({ error: 'Fehler beim Laden der Registrierungen' })
             };
         }
 
-        if (!spieltage) {
-            return {
-                statusCode: 200,
-                headers,
-                body: JSON.stringify({})
-            };
-        }
+        // Registrierungen verarbeiten
+        const registrations = {};
+        gameDays.forEach(day => {
+            registrations[day.id] = day.registrations || [];
+        });
 
-        console.log('Geladene Spieltage:', spieltage);
-        
-        // Bereinige doppelte Spieltage
-        const bereinigteSpieldage = bereinigeSpieltage(spieltage);
-        console.log('Bereinigte Spieltage:', bereinigteSpieldage);
-
-        // Verarbeite die Registrierungen in das gewünschte Format
-        const registrierungen = bereinigteSpieldage.reduce((acc, tag) => {
-            acc[tag.id] = tag.registrations || [];
-            return acc;
-        }, {});
-
-        console.log('Verarbeitete Registrierungen:', registrierungen);
+        console.log('Verarbeitete Registrierungen:', registrations);
 
         return {
             statusCode: 200,
             headers,
-            body: JSON.stringify(registrierungen)
+            body: JSON.stringify(registrations)
         };
     } catch (error) {
-        console.error('Serverfehler:', error);
+        console.error('Unerwarteter Fehler:', error);
         return {
             statusCode: 500,
             headers,
-            body: JSON.stringify({
-                error: 'Interner Serverfehler',
-                details: error.message
-            })
+            body: JSON.stringify({ error: 'Ein unerwarteter Fehler ist aufgetreten' })
         };
     }
 };

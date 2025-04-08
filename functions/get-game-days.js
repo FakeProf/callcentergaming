@@ -32,10 +32,10 @@ exports.handler = async function(event, context) {
     const headers = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE'
+        'Access-Control-Allow-Methods': 'GET, OPTIONS'
     };
 
-    // OPTIONS-Request für CORS
+    // OPTIONS-Anfrage für CORS
     if (event.httpMethod === 'OPTIONS') {
         return {
             statusCode: 200,
@@ -46,52 +46,30 @@ exports.handler = async function(event, context) {
 
     try {
         const supabase = createSupabaseClient();
-        console.log('Lade Spieltage aus der Datenbank...');
-
-        // Lösche zuerst alle bestehenden Spieltage
-        const { error: deleteError } = await supabase
+        
+        // Spieltage aus der Datenbank laden
+        const { data: gameDays, error } = await supabase
             .from('game_days')
-            .delete()
-            .neq('id', 0);
+            .select('*')
+            .order('date', { ascending: true });
 
-        if (deleteError) {
-            console.error('Fehler beim Löschen der Spieltage:', deleteError);
-            throw deleteError;
+        if (error) {
+            console.error('Fehler beim Laden der Spieltage:', error);
+            return {
+                statusCode: 500,
+                headers,
+                body: JSON.stringify({ error: 'Fehler beim Laden der Spieltage' })
+            };
         }
 
-        // Erstelle neue Spieltage ab dem 14.04.2025
-        const spieltage = [
-            {
-                date: '2025-04-14',
-                description: 'Counter Strike 2 - 5v5 Competitive'
-            },
-            {
-                date: '2025-04-15',
-                description: 'Combat Master - 4v4 Team Deathmatch'
-            },
-            {
-                date: '2025-04-16',
-                description: 'Valorant - 5v5 Competitive'
-            },
-            {
-                date: '2025-04-17',
-                description: 'RedMatch 2 - Team Deathmatch'
-            }
-        ];
+        // Spieltage bereinigen und formatieren
+        const bereinigteSpieltage = gameDays.map(day => ({
+            id: day.id,
+            date: day.date,
+            description: day.description || `${new Date(day.date).toLocaleDateString('de-DE', { weekday: 'long' })} - Spieltag`,
+            registrations: day.registrations || []
+        }));
 
-        // Füge die Spieltage in die Datenbank ein
-        const { data: insertedData, error: insertError } = await supabase
-            .from('game_days')
-            .insert(spieltage)
-            .select();
-
-        if (insertError) {
-            console.error('Fehler beim Einfügen der Spieltage:', insertError);
-            throw insertError;
-        }
-
-        console.log('Geladene Spieltage:', insertedData);
-        const bereinigteSpieltage = bereinigeSpieltage(insertedData);
         console.log('Bereinigte Spieltage:', bereinigteSpieltage);
 
         return {
@@ -100,11 +78,11 @@ exports.handler = async function(event, context) {
             body: JSON.stringify(bereinigteSpieltage)
         };
     } catch (error) {
-        console.error('Fehler beim Laden der Spieltage:', error);
+        console.error('Unerwarteter Fehler:', error);
         return {
             statusCode: 500,
             headers,
-            body: JSON.stringify({ error: 'Interner Serverfehler beim Laden der Spieltage' })
+            body: JSON.stringify({ error: 'Ein unerwarteter Fehler ist aufgetreten' })
         };
     }
 };
