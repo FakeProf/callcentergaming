@@ -608,8 +608,8 @@ main {
 
     .anmeldung-button {
         padding: 1rem;
-        font-size: 1rem;
-    }
+    font-size: 1rem;
+}
 
     .rangliste-header, .rangliste-zeile {
         grid-template-columns: 50px 1fr 70px;
@@ -618,14 +618,14 @@ main {
     }
 
     .regel-box {
-        padding: 1rem;
+    padding: 1rem;
     }
 
     .footer-content {
         flex-direction: column;
-        text-align: center;
-    }
-    
+    text-align: center;
+}
+
     .footer-section {
         margin-bottom: 1.5rem;
     }
@@ -651,7 +651,7 @@ main {
     }
 
     .spieltag-karte {
-        font-size: 0.9rem;
+    font-size: 0.9rem;
     }
 
     .teilnehmer-badge {
@@ -1042,4 +1042,28 @@ main {
 
 .register-button.registered:hover {
     background-color: #c82333;
+}
+
+.registration-counter {
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    padding: 8px 12px;
+    margin: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+}
+
+.counter-label {
+    color: #333;
+}
+
+.counter-value {
+    background-color: #4CAF50;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 3px;
+    min-width: 30px;
+    text-align: center;
 } 

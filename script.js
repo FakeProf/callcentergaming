@@ -232,12 +232,21 @@ function updateUI() {
         gameDays.forEach(day => {
             const dayElement = document.createElement('div');
             dayElement.className = 'game-day';
+            
+            // Berechne die Anzahl der Anmeldungen für diesen Spieltag
+            const anmeldungen = registrations[day.id] || [];
+            const anmeldeCount = anmeldungen.length;
+            
             dayElement.innerHTML = `
                 <h3>${day.description || formatDate(day.date)}</h3>
                 <p>Datum: ${formatDate(day.date)}</p>
+                <div class="registration-counter">
+                    <span class="counter-label">Anmeldungen:</span>
+                    <span class="counter-value">${anmeldeCount}</span>
+                </div>
                 <button onclick="toggleRegistration(${day.id})" class="register-button ${isRegistered(day.id) ? 'registered' : ''}">
                     ${isRegistered(day.id) ? 'Abmelden' : 'Anmelden'}
-                    </button>
+                </button>
             `;
             gameDaysContainer.appendChild(dayElement);
         });
