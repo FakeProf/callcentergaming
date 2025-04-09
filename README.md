@@ -1,6 +1,6 @@
-# Call-Center Gaming Championship 2025
+# Call-Center Championship 2025
 
-Eine Webanwendung für die Verwaltung des Call-Center Gaming Championship Turniers 2025.
+Eine Webanwendung für die Verwaltung des Call-Center Championship Turniers 2025.
 
 ## Features
 
@@ -52,4 +52,4 @@ Die Anwendung verwendet einen Express.js-Server für die Verwaltung der Anmeldun
 
 ## Lizenz
 
-Alle Rechte vorbehalten © 2025 Call-Center Gaming Championship 
+Alle Rechte vorbehalten © 2025 Call-Center Championship 

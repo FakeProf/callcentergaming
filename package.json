@@ -1,7 +1,7 @@
 {
   "name": "callcenter-tournament",
   "version": "1.0.0",
-  "description": "Call-Center Gaming Championship 2025",
+  "description": "Call-Center Championship 2025",
   "main": "server.js",
   "scripts": {
     "start": "netlify dev",
