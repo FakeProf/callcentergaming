@@ -58,7 +58,12 @@ exports.handler = async function(event, context) {
         // Registrierungen verarbeiten
         const registrations = {};
         gameDays.forEach(day => {
-            registrations[day.id] = day.registrations || [];
+            try {
+                registrations[day.id] = Array.isArray(day.registrations) ? day.registrations : [];
+            } catch (e) {
+                console.error('Fehler beim Verarbeiten der Registrierungen für Tag', day.id, e);
+                registrations[day.id] = [];
+            }
         });
 
         console.log('Verarbeitete Registrierungen:', registrations);
