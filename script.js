@@ -1,46 +1,3 @@
-const teilnehmerListe = [
-    {
-        name: "Albaner",
-        spiele: ["Counter Strike 2", "Rocket League", "Rainbow Six Siege", "Combat Master", "Krunker", "RedMatch 2", "Valorant"],
-        punkte: 0
-    },
-    {
-        name: "JJ",
-        spiele: ["Counter Strike 2", "Brawlhalla", "Clash Royal", "Stick Fight", "Just Act Natural", "Golf It", "Valorant"],
-        punkte: 0
-    },
-    {
-        name: "Julian",
-        spiele: ["Counter Strike 2", "Rainbow Six Siege", "Rocket League", "Bean Battles", "Golf It", "Combat Master", "Valorant"],
-        punkte: 0
-    },
-    {
-        name: "Juelsk",
-        spiele: ["Counter Strike 2", "Rocket League", "Brawlhalla", "RedMatch 2", "Krunker", "Just Act Natural", "Valorant"],
-        punkte: 0
-    },
-    {
-        name: "MalaAri",
-        spiele: ["Counter Strike 2", "Rainbow Six Siege", "Clash Royal", "Stick Fight", "Bean Battles", "Golf It", "Valorant"],
-        punkte: 0
-    },
-    {
-        name: "mu7asa4",
-        spiele: ["Counter Strike 2", "Combat Master", "Krunker", "RedMatch 2", "Brawlhalla", "Rocket League", "Valorant"],
-        punkte: 0
-    },
-    {
-        name: "The Fog182",
-        spiele: ["Counter Strike 2", "Rainbow Six Siege", "Clash Royal", "Just Act Natural", "Golf It", "Stick Fight", "Valorant"],
-        punkte: 0
-    },
-    {
-        name: "Yassumx",
-        spiele: ["Counter Strike 2", "Rocket League", "Combat Master", "Brawlhalla", "Bean Battles", "RedMatch 2", "Valorant"],
-        punkte: 0
-    }
-];
-
 const turnierSpielplan = {
     woche1: {
         name: "FPS-Woche",
@@ -147,6 +104,7 @@ const turnierSpielplan = {
 let currentUser = null;
 let gameDays = [];
 let registrations = {};
+let participants = []; // Neue Variable für Teilnehmer aus der Datenbank
 
 // DOM-Elemente
 const loginContainer = document.getElementById('login-container');
@@ -155,18 +113,6 @@ const gameDaysContainer = document.getElementById('game-days-container');
 const errorMessage = document.getElementById('error-message');
 const participantSelect = document.getElementById('participantSelect');
 const selectParticipantBtn = document.getElementById('selectParticipant');
-
-// Teilnehmerliste
-const participants = [
-    { id: '1', name: 'Albaner' },
-    { id: '2', name: 'JJ' },
-    { id: '3', name: 'Julian' },
-    { id: '4', name: 'Juelsk' },
-    { id: '5', name: 'MalaAri' },
-    { id: '6', name: 'mu7asa4' },
-    { id: '7', name: 'The Fog182' },
-    { id: '8', name: 'Yassumx' }
-];
 
 // Hilfsfunktionen
 function showError(message) {
@@ -200,10 +146,14 @@ function handleParticipantSelection() {
         return;
     }
 
-    const selectedParticipant = participants.find(p => p.id === selectedId);
+    // Konvertiere die ID zu einer Nummer, da die IDs in der Datenbank numerisch sind
+    const selectedParticipant = participants.find(p => p.id === parseInt(selectedId));
     if (selectedParticipant) {
         currentUser = selectedParticipant;
         updateUI();
+        updateLeaderboard(); // Aktualisiere auch die Rangliste
+    } else {
+        showError('Teilnehmer nicht gefunden');
     }
 }
 
@@ -357,7 +307,15 @@ async function toggleRegistration(gameDayId) {
 // Initialisierung
 async function initialize() {
     try {
+        // Lade Teilnehmer aus der Datenbank
+        const response = await fetch('/.netlify/functions/get-participants');
+        if (!response.ok) {
+            throw new Error('Fehler beim Laden der Teilnehmer');
+        }
+        participants = await response.json();
+        
         // Teilnehmerliste in Select-Element laden
+        participantSelect.innerHTML = '<option value="">Bitte wähle deinen Namen</option>';
         participants.forEach(participant => {
             const option = document.createElement('option');
             option.value = participant.id;
@@ -411,3 +369,98 @@ function updateGameDaysUI(gameDays, registrations) {
         gameDaysContainer.appendChild(gameDayElement);
     });
 }
+
+// Funktion zum Aktualisieren der Rangliste
+async function updateLeaderboard() {
+    try {
+        const response = await fetch('/.netlify/functions/get-participants');
+        if (!response.ok) {
+            throw new Error('Fehler beim Laden der Teilnehmer');
+        }
+        const participants = await response.json();
+        
+        const ranglisteContainer = document.querySelector('.rangliste-container');
+        if (!ranglisteContainer) return;
+
+        ranglisteContainer.innerHTML = '';
+        
+        // Sortiere Teilnehmer nach Punkten
+        const sortedParticipants = participants.sort((a, b) => b.points - a.points);
+        
+        sortedParticipants.forEach((participant, index) => {
+            const ranglisteItem = document.createElement('div');
+            ranglisteItem.className = 'rangliste-item';
+            
+            const platz = document.createElement('span');
+            platz.className = `platz ${index < 3 ? `platz-${index + 1}` : ''}`;
+            platz.textContent = `${index + 1}. ${participant.name}:`;
+            
+            const punkte = document.createElement('span');
+            punkte.className = 'punkte';
+            punkte.textContent = `${participant.points} Punkte`;
+            
+            // Füge Bearbeitungsfunktionen für Julian hinzu
+            if (currentUser && currentUser.name === 'Julian') {
+                const editButton = document.createElement('button');
+                editButton.className = 'edit-points-button';
+                editButton.textContent = 'Bearbeiten';
+                editButton.onclick = () => editPoints(participant.name, participant.points);
+                
+                ranglisteItem.appendChild(platz);
+                ranglisteItem.appendChild(punkte);
+                ranglisteItem.appendChild(editButton);
+            } else {
+                ranglisteItem.appendChild(platz);
+                ranglisteItem.appendChild(punkte);
+            }
+            
+            ranglisteContainer.appendChild(ranglisteItem);
+        });
+    } catch (error) {
+        console.error('Fehler beim Aktualisieren der Rangliste:', error);
+        showError('Fehler beim Laden der Rangliste');
+    }
+}
+
+// Funktion zum Bearbeiten der Punkte
+async function editPoints(participantName, currentPoints) {
+    if (!currentUser || currentUser.name !== 'Julian') return;
+    
+    const newPoints = prompt(`Neue Punktzahl für ${participantName}:`, currentPoints);
+    if (newPoints === null) return;
+    
+    const points = parseInt(newPoints);
+    if (isNaN(points) || points < 0) {
+        showError('Bitte geben Sie eine gültige Punktzahl ein');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/.netlify/functions/update-points', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                userName: currentUser.name,
+                participantName,
+                points
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Fehler beim Aktualisieren der Punkte');
+        }
+        
+        await updateLeaderboard();
+    } catch (error) {
+        console.error('Fehler beim Aktualisieren der Punkte:', error);
+        showError('Fehler beim Aktualisieren der Punkte');
+    }
+}
+
+// Aktualisiere die Rangliste beim Laden der Seite
+document.addEventListener('DOMContentLoaded', () => {
+    // ... existing code ...
+    updateLeaderboard();
+});

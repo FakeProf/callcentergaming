@@ -21,7 +21,7 @@ exports.handler = async function(event, context) {
         const supabase = createSupabaseClient();
         
         // Spieltage aus der Datenbank laden
-        const { data: gameDays, error } = await supabase
+        let { data: gameDays, error } = await supabase
             .from('game_days')
             .select('*')
             .order('date', { ascending: true });

@@ -3,6 +3,11 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const fs = require('fs').promises;
 const path = require('path');
+const { createSupabaseClient } = require('./functions/supabase-config');
+
+// Setze Supabase-Umgebungsvariablen
+process.env.SUPABASE_URL = 'https://jfimhmaasapqfsjthglq.supabase.co';
+process.env.SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmY2RkY2RkY2RkY2RkY2RkY2RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTk5OTk5OTksImV4cCI6MjAxNTU3NTk5OX0.YOUR_JWT_TOKEN';
 
 const app = express();
 const PORT = 3000;
@@ -64,6 +69,52 @@ app.post('/api/registrations/:game', async (req, res) => {
         res.json({ success: true, registrations: registrations[game] });
     } catch (error) {
         res.status(500).json({ error: 'Fehler bei der Anmeldung/Abmeldung' });
+    }
+});
+
+// Funktion zur Überprüfung der Admin-Berechtigung
+function isAdmin(userName) {
+    return userName === 'Julian';
+}
+
+// Endpunkt zum Aktualisieren der Punkte eines Teilnehmers
+app.post('/api/update-points', async (req, res) => {
+    const { userName, participantName, points } = req.body;
+
+    if (!isAdmin(userName)) {
+        return res.status(403).json({ error: 'Keine Berechtigung für diese Aktion' });
+    }
+
+    try {
+        const supabase = createSupabaseClient();
+        const { data, error } = await supabase
+            .from('participants')
+            .update({ points: points })
+            .eq('name', participantName)
+            .select();
+
+        if (error) throw error;
+        res.json({ success: true, data });
+    } catch (error) {
+        console.error('Fehler beim Aktualisieren der Punkte:', error);
+        res.status(500).json({ error: 'Interner Serverfehler' });
+    }
+});
+
+// Endpunkt zum Abrufen aller Teilnehmer mit Punkten
+app.get('/api/participants', async (req, res) => {
+    try {
+        const supabase = createSupabaseClient();
+        const { data, error } = await supabase
+            .from('participants')
+            .select('*')
+            .order('points', { ascending: false });
+
+        if (error) throw error;
+        res.json(data);
+    } catch (error) {
+        console.error('Fehler beim Abrufen der Teilnehmer:', error);
+        res.status(500).json({ error: 'Interner Serverfehler' });
     }
 });
 

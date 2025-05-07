@@ -1,21 +1,21 @@
 {
 	"geolocation": {
 		"data": {
-			"city": "Hanover",
+			"city": "Sencelles",
 			"country": {
-				"code": "DE",
-				"name": "Germany"
+				"code": "ES",
+				"name": "Spain"
 			},
 			"subdivision": {
-				"code": "NI",
-				"name": "Lower Saxony"
+				"code": "IB",
+				"name": "Balearic Islands"
 			},
-			"timezone": "Europe/Berlin",
-			"latitude": 52.4062,
-			"longitude": 9.7932,
-			"postalCode": "30655"
+			"timezone": "Europe/Madrid",
+			"latitude": 39.6444,
+			"longitude": 2.8975,
+			"postalCode": "07140"
 		},
-		"timestamp": 1745770477346
+		"timestamp": 1746616282990
 	},
 	"siteId": "65ed5ef7-feff-4ef9-b769-06b3ffb35aa1"
 }
